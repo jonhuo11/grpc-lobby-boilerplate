@@ -1,0 +1,84 @@
+syntax = "proto3";
+
+package api;
+
+option go_package = "grpc-gamelobby-boilerplate/server/api";
+
+enum LobbyState {
+    IN_LOBBY = 0;
+    IN_GAME = 1;
+}
+
+enum BellType {
+    BING = 0;
+    BONG = 1;
+}
+
+message RegisterPlayerRequest {
+    string username = 1;
+}
+
+message RegisterPlayerResponse {
+    string username = 1;
+}
+
+message LoginPlayer {
+    string username = 1;
+}
+
+message CreateLobby {
+    string name = 1;
+}
+
+message JoinLobby {
+    string name = 1;
+}
+
+message LeaveLobby {
+}
+
+message RequestRingBell {
+    BellType bell_type = 1;
+}
+
+message LobbyList {
+    repeated string lobby_list = 1;
+}
+
+message LobbyDetails {
+    string name = 1;
+    LobbyState state = 2;
+    repeated string player_list = 3;
+}
+
+message RingBellEvent {
+    BellType bell_type = 1;
+}
+
+message FailEvent {
+    string info = 1;
+}
+
+message PlayerRequest {
+    oneof action {
+        LoginPlayer login = 1;
+        CreateLobby create_lobby = 2;
+        JoinLobby join_lobby = 3;
+        LeaveLobby leave_lobby = 4;
+        RequestRingBell ring_bell = 5;
+    }
+}
+
+message LobbyResponse {
+    oneof action {
+        LobbyDetails lobby_details = 1;
+        RingBellEvent ring_bell_event = 2;
+        FailEvent fail_event = 3;
+        LobbyList lobby_list = 4;
+    }
+}
+
+service LobbyService {
+    rpc RegisterPlayer (RegisterPlayerRequest) returns (RegisterPlayerResponse) {}
+    rpc LobbyStream (stream PlayerRequest) returns (stream LobbyResponse) {}
+}
